@@ -85,7 +85,7 @@ const observer = new IntersectionObserver((entries) => {
 // Observe elements for animation
 document.addEventListener("DOMContentLoaded", () => {
   const animatedElements = document.querySelectorAll(
-    ".card, .highlight-card, .stat-item, .hero-title, .hero-subtitle"
+    ".card, .highlight-card, .stat-item"
   );
   
   animatedElements.forEach((el) => {
@@ -104,10 +104,10 @@ window.addEventListener("scroll", () => {
   const currentScrollY = window.scrollY;
   
   if (currentScrollY > 100) {
-    header.style.background = "rgba(10, 11, 30, 0.95)";
-    header.style.boxShadow = "0 2px 20px rgba(0, 0, 0, 0.3)";
+    header.style.background = "rgba(244, 246, 239, 0.98)";
+    header.style.boxShadow = "0 4px 18px rgba(32, 43, 37, 0.08)";
   } else {
-    header.style.background = "rgba(10, 11, 30, 0.8)";
+    header.style.background = "rgba(244, 246, 239, 0.94)";
     header.style.boxShadow = "none";
   }
   
@@ -159,3 +159,57 @@ document.querySelectorAll('.card, .highlight-card').forEach(card => {
 });
 
 console.log("🚀 Portfolio website loaded successfully!");
+
+const playIntro = document.getElementById("playIntro");
+const avatarInvite = playIntro?.querySelector(".avatar-invite");
+const hero = document.querySelector(".hero");
+const introAudio = document.getElementById("introAudio");
+const introStatus = document.getElementById("introStatus");
+
+if (playIntro && avatarInvite && hero && introAudio) {
+  const resetIntro = () => {
+    hero.classList.remove("is-speaking");
+    playIntro.setAttribute("aria-pressed", "false");
+    playIntro.setAttribute("aria-label", "Hear Sagarika's introduction");
+    playIntro.title = "Play the introduction";
+    avatarInvite.textContent = "Meet Sagarika";
+    window.avatarScene?.setSpeaking(false);
+  };
+
+  playIntro.addEventListener("click", async () => {
+    if (!introAudio.paused) {
+      introAudio.pause();
+      introAudio.currentTime = 0;
+      resetIntro();
+      return;
+    }
+
+    introAudio.currentTime = 0;
+    introStatus.textContent = "Playing Sagarika's introduction.";
+
+    try {
+      await introAudio.play();
+    } catch {
+      introStatus.textContent = "The introduction could not play. Please reload the page and try again.";
+      resetIntro();
+    }
+  });
+
+  introAudio.addEventListener("play", () => {
+    hero.classList.add("is-speaking");
+    playIntro.setAttribute("aria-pressed", "true");
+    playIntro.setAttribute("aria-label", "Stop Sagarika's introduction");
+    playIntro.title = "Stop the introduction";
+    avatarInvite.textContent = "Stop introduction";
+    window.avatarScene?.setSpeaking(true);
+  });
+  introAudio.addEventListener("pause", resetIntro);
+  introAudio.addEventListener("ended", () => {
+    resetIntro();
+    introStatus.textContent = "Introduction finished.";
+  });
+  introAudio.addEventListener("error", () => {
+    resetIntro();
+    introStatus.textContent = "The introduction audio could not be loaded.";
+  });
+}
